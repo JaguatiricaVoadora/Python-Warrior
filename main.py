@@ -25,7 +25,7 @@ BLUE = (50, 50, 225)
 # Jogador
 player = pygame.Rect(100, 540, 100, 140)
 player_vel_y = 0
-GRAVITY = 0.8
+GRAVITY = 1
 JUMP_STRENGTH = -15
 on_ground = False
 

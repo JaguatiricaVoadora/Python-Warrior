@@ -153,7 +153,7 @@ while True:
     player_vel_y += GRAVITY
     player.y += player_vel_y
 
-    # Colisão com o chão infinito (realmente infinito usando módulo)
+    # Colisão com o chão infinito
     on_ground = False
     player_x_mod = player.x % WIDTH
     offset_base = player.x - player_x_mod

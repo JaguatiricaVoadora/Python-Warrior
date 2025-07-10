@@ -79,6 +79,10 @@ while True:
                 dev_panel_open = not dev_panel_open
             if dev_panel_open and event.key == pygame.K_h:
                 show_hitboxes = not show_hitboxes
+            # Adiciona ação para a tecla G
+            if event.key == pygame.K_g:
+                # Exemplo: reduz a vida do jogador em 10 (mínimo 0)
+                player_health = max(0, player_health - 10)
 
     # Movimentação do jogador
     keys = pygame.key.get_pressed()

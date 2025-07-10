@@ -31,50 +31,11 @@ on_ground = False
 
 # Carregar frames de corrida e idle
 import os
-run_frames = []
-run_frames_dir = os.path.join('Sprites', 'Run_frames')
-for i in range(10):
-    frame_path = os.path.join(run_frames_dir, f'frame_{i:03}.png')
-    frame = pygame.image.load(frame_path).convert_alpha()
-    frame = pygame.transform.scale(frame, (180, 200))
-    run_frames.append(frame)
+from player_animations import PlayerAnimations
 
-idle_frames = []
-idle_frames_dir = os.path.join('Sprites', 'Idle_frames')
-for i in range(10):
-    frame_path = os.path.join(idle_frames_dir, f'frame_{i:03}.png')
-    frame = pygame.image.load(frame_path).convert_alpha()
-    frame = pygame.transform.scale(frame, (180, 200))
-    idle_frames.append(frame)
-
-jump_frames = []
-jump_frames_dir = os.path.join('Sprites', 'Jump_frames')
-for i in range(3):
-    frame_path = os.path.join(jump_frames_dir, f'frame_{i:03}.png')
-    frame = pygame.image.load(frame_path).convert_alpha()
-    frame = pygame.transform.scale(frame, (180, 200))
-    jump_frames.append(frame)
-
-fall_frames = []
-fall_frames_dir = os.path.join('Sprites', 'Fall_frames')
-for i in range(3):
-    frame_path = os.path.join(fall_frames_dir, f'frame_{i:03}.png')
-    frame = pygame.image.load(frame_path).convert_alpha()
-    frame = pygame.transform.scale(frame, (180, 200))
-    fall_frames.append(frame)
-
-run_frame_index = 0
-run_anim_speed = 0.25
-run_anim_counter = 0
-idle_frame_index = 0
-idle_anim_speed = 0.10
-idle_anim_counter = 0
-jump_frame_index = 0
-jump_anim_speed = 0.10
-jump_anim_counter = 0
-fall_frame_index = 0
-fall_anim_speed = 0.10
-fall_anim_counter = 0
+animations = PlayerAnimations('Sprites')
+is_rolling = False
+last_move_direction = 1
 last_move_direction = 1
 
 # Painel DEV
@@ -115,39 +76,38 @@ while True:
     # Movimentação do jogador
     keys = pygame.key.get_pressed()
     moving = False
-    if keys[pygame.K_LEFT]:
-        player.x -= 5
-        moving = True
-        last_move_direction = -1
-    if keys[pygame.K_RIGHT]:
-        player.x += 5
-        moving = True
-        last_move_direction = 1
-    if keys[pygame.K_SPACE] and on_ground:
-        player_vel_y = JUMP_STRENGTH
+
+    # Roll logic
+    if not is_rolling and keys[pygame.K_LSHIFT] and on_ground and (keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]) and animations.roll_frames:
+        is_rolling = True
+        animations.reset_roll()
+        if keys[pygame.K_LEFT]:
+            last_move_direction = -1
+        elif keys[pygame.K_RIGHT]:
+            last_move_direction = 1
+
+    if is_rolling:
+        speed = 10
+        player.x += speed * last_move_direction
+        animations.update('roll', False, on_ground, player_vel_y, is_rolling)
+        if animations.roll_frame_index >= len(animations.roll_frames) - 1:
+            is_rolling = False
+            animations.reset_roll()
+    else:
+        if keys[pygame.K_LEFT]:
+            player.x -= 5
+            moving = True
+            last_move_direction = -1
+        if keys[pygame.K_RIGHT]:
+            player.x += 5
+            moving = True
+            last_move_direction = 1
+        if keys[pygame.K_SPACE] and on_ground:
+            player_vel_y = JUMP_STRENGTH
 
     # Atualizar animação
-    if not on_ground:
-        if player_vel_y > 0:
-            fall_anim_counter += fall_anim_speed
-            if fall_anim_counter >= 1:
-                fall_frame_index = (fall_frame_index + 1) % len(fall_frames)
-                fall_anim_counter = 0
-        else:
-            jump_anim_counter += jump_anim_speed
-            if jump_anim_counter >= 1:
-                jump_frame_index = (jump_frame_index + 1) % len(jump_frames)
-                jump_anim_counter = 0
-    elif moving:
-        run_anim_counter += run_anim_speed
-        if run_anim_counter >= 1:
-            run_frame_index = (run_frame_index + 1) % len(run_frames)
-            run_anim_counter = 0
-    else:
-        idle_anim_counter += idle_anim_speed
-        if idle_anim_counter >= 1:
-            idle_frame_index = (idle_frame_index + 1) % len(idle_frames)
-            idle_anim_counter = 0
+    if not is_rolling:
+        animations.update('any', moving, on_ground, player_vel_y, is_rolling)
 
     # Aplicar gravidade
     player_vel_y += GRAVITY
@@ -168,15 +128,7 @@ while True:
     # ======== DESENHO COM OFFSET DA CÂMERA ========
     player_draw_pos = player.move(-camera_x, 0)
     # Desenhar o frame correto
-    if not on_ground:
-        if player_vel_y > 0:
-            frame = fall_frames[fall_frame_index]
-        else:
-            frame = jump_frames[jump_frame_index]
-    elif moving:
-        frame = run_frames[run_frame_index]
-    else:
-        frame = idle_frames[idle_frame_index]
+    frame = animations.get_frame('any', is_rolling, player_vel_y, on_ground, moving)
     frame_flipped = pygame.transform.flip(frame, last_move_direction == -1, False)
     sprite_x = player_draw_pos.x
     sprite_y = player_draw_pos.y + player_draw_pos.height - frame_flipped.get_height()

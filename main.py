@@ -7,12 +7,12 @@ pygame.init()
 # Tela do jogo
 BG_IMG = pygame.image.load('Sprites/Background.png')
 WIDTH, HEIGHT = BG_IMG.get_width(), BG_IMG.get_height()
-SCALE = 1.2  # Fator de escala
+SCALE = 1.2
 SCREEN_WIDTH, SCREEN_HEIGHT = int(WIDTH * SCALE), int(HEIGHT * SCALE)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Teste de Jogo¹")
 
-# Superfície para renderização do jogo (tamanho original)
+# Superfície para renderização
 game_surface = pygame.Surface((WIDTH, HEIGHT))
 
 # Relógio
@@ -31,7 +31,7 @@ GRAVITY = 1
 JUMP_STRENGTH = -15
 on_ground = False
 
-# Barra de vida (posição fixa no topo da tela)
+# Barra de vida
 PLAYER_MAX_HEALTH = 100
 player_health = PLAYER_MAX_HEALTH
 life_bar = LifeBar(40, 30, 300, 30, PLAYER_MAX_HEALTH)
@@ -79,7 +79,7 @@ while True:
                 dev_panel_open = not dev_panel_open
             if dev_panel_open and event.key == pygame.K_h:
                 show_hitboxes = not show_hitboxes
-            # Adiciona ação para a tecla G
+            # Adiciona ação para a tecla G ( Remover vida )
             if event.key == pygame.K_g:
                 # Exemplo: reduz a vida do jogador em 10 (mínimo 0)
                 player_health = max(0, player_health - 10)
@@ -89,12 +89,12 @@ while True:
     moving = False
 
     # Roll logic
-    if not is_rolling and keys[pygame.K_LSHIFT] and on_ground and (keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]) and animations.roll_frames:
+    if not is_rolling and keys[pygame.K_LSHIFT] and on_ground and (keys[pygame.K_a] or keys[pygame.K_d]) and animations.roll_frames:
         is_rolling = True
         animations.reset_roll()
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_a]:
             last_move_direction = -1
-        elif keys[pygame.K_RIGHT]:
+        elif keys[pygame.K_d]:
             last_move_direction = 1
 
     if is_rolling:
@@ -105,11 +105,11 @@ while True:
             is_rolling = False
             animations.reset_roll()
     else:
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_a]:
             player.x -= 5
             moving = True
             last_move_direction = -1
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_d]:
             player.x += 5
             moving = True
             last_move_direction = 1

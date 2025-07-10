@@ -64,7 +64,7 @@ for i in range(3):
     fall_frames.append(frame)
 
 run_frame_index = 0
-run_anim_speed = 0.15
+run_anim_speed = 0.25
 run_anim_counter = 0
 idle_frame_index = 0
 idle_anim_speed = 0.10

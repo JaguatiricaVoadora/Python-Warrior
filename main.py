@@ -1,4 +1,5 @@
 import pygame
+from life_bar import LifeBar
 import sys
 
 pygame.init()
@@ -22,12 +23,18 @@ FPS = 60
 WHITE = (255, 255, 255)
 BLUE = (50, 50, 225)
 
+
 # Jogador
 player = pygame.Rect(100, 540, 100, 140)
 player_vel_y = 0
 GRAVITY = 1
 JUMP_STRENGTH = -15
 on_ground = False
+
+# Barra de vida (posição fixa no topo da tela)
+PLAYER_MAX_HEALTH = 100
+player_health = PLAYER_MAX_HEALTH
+life_bar = LifeBar(40, 30, 300, 30, PLAYER_MAX_HEALTH)
 
 # Carregar frames de corrida e idle
 import os
@@ -125,6 +132,7 @@ while True:
             on_ground = True
             break
 
+
     # ======== DESENHO COM OFFSET DA CÂMERA ========
     player_draw_pos = player.move(-camera_x, 0)
     # Desenhar o frame correto
@@ -133,6 +141,11 @@ while True:
     sprite_x = player_draw_pos.x
     sprite_y = player_draw_pos.y + player_draw_pos.height - frame_flipped.get_height()
     game_surface.blit(frame_flipped, (sprite_x, sprite_y))
+
+    # Atualizar e desenhar a barra de vida
+    # (Aqui, a vida é fixa, mas você pode alterar player_health conforme o dano)
+    life_bar.update(player_health)
+    life_bar.draw(game_surface)
 
     # Painel DEV
     if dev_panel_open:
